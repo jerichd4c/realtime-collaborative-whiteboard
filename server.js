@@ -42,6 +42,11 @@ io.on('connection', (socket) => {
         socket.to(data.roomId).emit('draw-action', data);
     });
 
+    socket.on('move-action', (data) => {
+        // Broadcast shape move to the rest of the room
+        socket.to(data.roomId).emit('move-action', data);
+    });
+
     // Disconnect
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
