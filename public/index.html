@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital whiteboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Caveat:wght@700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- left sidebar: toolbar -->
+        <aside class="toolbar-floating">
+            <button class="tool-btn" id="tool-pencil" title="Lápiz">✏️</button>
+            <button class="tool-btn" id="tool-square">⬜</button>
+            <button class="tool-btn" id="tool-circle">⭕</button>
+            <button class="tool-btn" id="tool-triangle">🔺</button>
+            <button class="tool-btn" id="tool-text">T</button>
+            <button class="tool-btn" id="tool-line">📏</button>
+            <button class="tool-btn" id="tool-image">🖼️</button>
+            <button class="tool-btn" id="tool-eraser">🧽</button>
+
+            <span class="divider"></span>
+
+            <div class="color-picker-wrapper" title="Color del trazo">
+                <input type="color" id="color-picker" value="#000000">
+            </div>
+
+            <input type="file" id="imageLoader" accept="image/*" style="display: none;">
+        </aside>
+
+        <!-- canvas -->
+        <main class="canvas-container">
+            <canvas id="whiteboard"></canvas>
+        </main>
+
+        <!-- right sidebar: user controls -->
+        <aside class="users-panel-floating">
+            <div class="panel-header">Users</div>
+            <div id="users-list">
+                <!-- standby template -->
+                <div class="user-item local-user">
+                    <span class="user-icon">👤</span>
+                    <button class="audio-btn speaker-btn" disabled>🔊</button>
+                    <button class="audio-btn mic-btn" id="local-mic-btn">🎙️</button>
+                    <span class="user-id">You</span>
+                </div>
+                <!-- inject new users via JS script -->
+            </div>
+        </aside>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
