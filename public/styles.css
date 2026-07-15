@@ -209,34 +209,71 @@ body {
     border-radius: 1px;
 }
 
-/* --- PREVENIR SUPERPOSICIÓN MANTENIENDO LA POSICIÓN (Escalado) --- */
+/* --- RESPONSIVE DESIGN (Reemplazar al final de styles.css) --- */
 
-/* Para tablets y pantallas medianas */
+/* Para tablets y pantallas medianas (hasta 768px) */
 @media (max-width: 768px) {
     .toolbar-floating {
-        /* Mantiene el centrado (-50%) pero reduce el tamaño general al 80% */
-        transform: translateX(-50%) scale(0.8);
-        transform-origin: top center;
-        width: max-content;
-        /* Evita que los botones colapsen antes de escalar */
+        /* Mover la barra a la parte inferior */
+        top: auto;
+        bottom: 20px;
+        width: 90%; /* Permitir que ocupe más ancho */
+        max-width: 450px;
+        flex-wrap: wrap; /* Permite que los botones bajen de línea si no caben */
+        justify-content: center; /* Centrar todo el contenido */
+        transform: translateX(-50%); /* Mantiene el centrado horizontal */
     }
 
     .users-panel-floating {
-        /* Reduce el tamaño al 80% anclando el punto de escala a la esquina superior derecha */
-        transform: scale(0.8);
-        transform-origin: top right;
+        /* Reducir un poco el ancho del panel */
+        width: 200px;
         right: 10px;
     }
 }
 
-/* Para teléfonos móviles y pantallas muy estrechas */
+/* Para teléfonos móviles y pantallas muy estrechas (hasta 480px) */
 @media (max-width: 480px) {
     .toolbar-floating {
-        /* Reduce un poco más la escala para evitar choques en móviles en vertical */
-        transform: translateX(-50%) scale(0.65);
+        bottom: 10px;
+        width: 95%;
+        padding: 6px 10px;
+        gap: 6px; 
+    }
+
+    .tool-btn {
+        /* Botones un poco más pequeños en móviles */
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+    }
+
+    .color-picker-wrapper {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .divider {
+        height: 18px;
     }
 
     .users-panel-floating {
-        transform: scale(0.65);
+        top: 10px;
+        right: 10px;
+        width: max-content; /* Que se adapte exactamente al contenido mínimo */
+    }
+
+    .panel-header {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .user-item {
+        padding: 6px 8px;
+        gap: 8px;
+    }
+
+    .user-id {
+        /* Ocultar el texto del nombre/ID en móviles para no colisionar con la pizarra */
+        display: none; 
     }
 }
