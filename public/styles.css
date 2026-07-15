@@ -1,279 +1,747 @@
-/* Reseteo y Fuentes */
-* {
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+    /* Color palette — dark mode */
+    --bg-canvas:        #0f1117;
+    --bg-surface:       rgba(18, 20, 29, 0.88);
+    --bg-surface-hover: rgba(255, 255, 255, 0.06);
+    --bg-surface-active:rgba(99, 102, 241, 0.18);
+
+    --border-subtle:    rgba(255, 255, 255, 0.08);
+    --border-strong:    rgba(255, 255, 255, 0.14);
+
+    --accent:           #6366f1;        /* indigo */
+    --accent-glow:      rgba(99, 102, 241, 0.35);
+    --accent-light:     #818cf8;
+    --accent-active-bg: rgba(99, 102, 241, 0.22);
+
+    --text-primary:     #f1f5f9;
+    --text-secondary:   #94a3b8;
+    --text-muted:       #64748b;
+
+    --danger:           #f43f5e;
+    --success:          #22c55e;
+
+    /* Grid lines on canvas */
+    --grid-color:       rgba(255,255,255,0.04);
+    --canvas-bg:        #1a1d2e;
+    --canvas-dot:       rgba(255,255,255,0.06);
+
+    /* Sizing */
+    --toolbar-radius:   16px;
+    --btn-radius:       10px;
+    --panel-radius:     16px;
+    --shadow-float:     0 8px 32px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
+    --shadow-glow:      0 0 0 2px var(--accent-glow);
+    --transition:       all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   ============================================================ */
+[data-theme="light"] {
+    --bg-canvas:        #f0f2f8;
+    --bg-surface:       rgba(255, 255, 255, 0.92);
+    --bg-surface-hover: rgba(0, 0, 0, 0.04);
+    --bg-surface-active:rgba(99, 102, 241, 0.10);
+
+    --border-subtle:    rgba(0, 0, 0, 0.06);
+    --border-strong:    rgba(0, 0, 0, 0.12);
+
+    --accent:           #4f46e5;
+    --accent-glow:      rgba(79, 70, 229, 0.3);
+    --accent-light:     #6366f1;
+    --accent-active-bg: rgba(79, 70, 229, 0.12);
+
+    --text-primary:     #0f172a;
+    --text-secondary:   #475569;
+    --text-muted:       #94a3b8;
+
+    --danger:           #e11d48;
+    --success:          #16a34a;
+
+    --grid-color:       rgba(0, 0, 0, 0.06);
+    --canvas-bg:        #ffffff;
+    --canvas-dot:       rgba(0, 0, 0, 0.05);
+
+    --shadow-float:     0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* ============================================================
+   BASE
+   ============================================================ */
 body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f8f9fa;
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: var(--bg-canvas);
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    color: var(--text-primary);
+    /* Smooth theme transition */
+    transition: background-color 0.35s ease, color 0.35s ease;
 }
 
-/* El contenedor principal ahora ocupa toda la pantalla */
 .app-container {
     position: relative;
     width: 100%;
     height: 100%;
-    display: flex;
 }
 
-/* Contenedor del Canvas con la icónica REJILLA de Excalidraw */
+/* ============================================================
+   CANVAS AREA
+   ============================================================ */
 .canvas-container {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     z-index: 1;
-    background-color: #ffffff;
+    background-color: var(--canvas-bg);
     background-image:
-        linear-gradient(to right, #f1f3f5 1px, transparent 1px),
-        linear-gradient(to bottom, #f1f3f5 1px, transparent 1px);
-    background-size: 20px 20px;
-    /* Tamaño de la cuadrícula */
+        linear-gradient(var(--grid-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 32px 32px;
     cursor: crosshair;
+    transition: background-color 0.35s ease;
+}
+
+/* Subtle dot at grid intersections */
+.canvas-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, var(--canvas-dot) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: 0 0;
+    pointer-events: none;
 }
 
 #whiteboard {
     width: 100%;
     height: 100%;
     display: block;
+    position: relative;
+    z-index: 2;
 }
 
-/* BARRA DE HERRAMIENTAS FLOTANTE (Centrada en la parte superior) */
+/* ============================================================
+   FLOATING TOOLBAR  (top-center)
+   ============================================================ */
 .toolbar-floating {
     position: absolute;
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10;
+    z-index: 100;
+
     display: flex;
     align-items: center;
-    gap: 8px;
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 8px 14px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e9ecef;
-    backdrop-filter: blur(8px);
-    width: max-content; /* Obliga a la barra a no encogerse nunca */
+    gap: 4px;
+
+    background: var(--bg-surface);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 6px 10px;
+    border-radius: var(--toolbar-radius);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-float);
+    width: max-content;
+
+    /* Animate in */
+    animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
+@keyframes slideDown {
+    from { opacity: 0; transform: translateX(-50%) translateY(-16px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.color-group {
+    gap: 8px;
+}
+
+/* ============================================================
+   TOOL BUTTONS
+   ============================================================ */
 .tool-btn {
-    font-size: 20px;
-    background: none;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+
+    background: transparent;
     border: 1px solid transparent;
     cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s ease;
+    width: 48px;
+    height: 52px;
+    border-radius: var(--btn-radius);
+    color: var(--text-secondary);
+    transition: var(--transition);
+    padding: 6px 4px 4px;
+}
+
+.tool-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.tool-label {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    color: var(--text-muted);
+    transition: color 0.2s;
+    user-select: none;
 }
 
 .tool-btn:hover {
-    background-color: #f1f3f5;
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
 }
 
-/* Herramienta activa: estilo sutil y moderno */
+.tool-btn:hover .tool-label {
+    color: var(--text-secondary);
+}
+
+.tool-btn:hover svg {
+    transform: scale(1.1);
+}
+
+.tool-btn:active {
+    transform: scale(0.93);
+}
+
 .tool-btn.active {
-    background-color: #e8f0fe;
-    border-color: #aecbfa;
-    color: #1a73e8;
+    background: var(--accent-active-bg);
+    border-color: var(--accent);
+    color: var(--accent-light);
+    box-shadow: 0 0 0 1px var(--accent-glow) inset, var(--shadow-glow);
 }
 
-/* Divisor vertical entre herramientas y color */
+.tool-btn.active .tool-label {
+    color: var(--accent-light);
+}
+
+/* Tooltip replacement using title + CSS (already handled by browser title attr)
+   We add a subtle bottom glow indicator instead */
+.tool-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+}
+
+/* ============================================================
+   DIVIDER
+   ============================================================ */
 .divider {
     width: 1px;
-    height: 24px;
-    background-color: #dee2e6;
-    margin: 0 8px;
+    height: 32px;
+    background: var(--border-strong);
+    margin: 0 6px;
+    flex-shrink: 0;
 }
 
-/* Selector de Color Circular Estilo Minimalista */
+/* ============================================================
+   COLOR PICKER
+   ============================================================ */
 .color-picker-wrapper {
-    width: 30px;
-    height: 30px;
+    position: relative;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
-    border: 2px solid #ced4da;
+    border: 2px solid var(--border-strong);
     overflow: hidden;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: var(--transition);
+    background: #000;
+    flex-shrink: 0;
 }
 
 .color-picker-wrapper:hover {
-    transform: scale(1.1);
-    border-color: #868e96;
+    transform: scale(1.12);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-glow);
+}
+
+.color-dropper-icon {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    color: rgba(255,255,255,0.7);
+    pointer-events: none;
+    z-index: 2;
 }
 
 #color-picker {
     border: none;
-    width: 160%;
-    height: 160%;
+    width: 180%;
+    height: 180%;
     cursor: pointer;
     padding: 0;
     background: none;
+    opacity: 0.01; /* let the wrapper bg colour show via JS */
 }
 
-/* PANEL DE USUARIOS FLOTANTE (Esquina superior derecha) */
+/* ============================================================
+   STROKE SIZE SLIDER
+   ============================================================ */
+.stroke-size-control {
+    display: flex;
+    align-items: center;
+}
+
+#stroke-size {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 72px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-strong);
+    outline: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+#stroke-size::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--accent-light);
+    box-shadow: 0 0 6px var(--accent-glow);
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+#stroke-size::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+    box-shadow: 0 0 12px var(--accent);
+}
+
+#stroke-size::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--accent-light);
+    cursor: pointer;
+}
+
+/* ============================================================
+   STATUS BADGE  (bottom-left)
+   ============================================================ */
+.status-badge {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--bg-surface);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-strong);
+    border-radius: 24px;
+    padding: 6px 14px 6px 10px;
+    box-shadow: var(--shadow-float);
+    animation: fadeIn 0.6s 0.3s both;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: background 0.4s, box-shadow 0.4s;
+}
+
+.status-badge.connected .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { box-shadow: 0 0 6px var(--success); }
+    50%       { box-shadow: 0 0 14px var(--success); }
+}
+
+.status-text {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.03em;
+}
+
+/* ============================================================
+   USERS PANEL  (top-right)
+   ============================================================ */
 .users-panel-floating {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 10;
-    width: 260px;
-    background-color: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    border: 1px solid #e9ecef;
-    backdrop-filter: blur(8px);
+    z-index: 100;
+    width: 240px;
+
+    background: var(--bg-surface);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-radius: var(--panel-radius);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--shadow-float);
+
     display: flex;
     flex-direction: column;
-    max-height: 300px;
+    overflow: hidden;
+    max-height: 320px;
+
+    animation: slideLeft 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+}
+
+@keyframes slideLeft {
+    from { opacity: 0; transform: translateX(20px); }
+    to   { opacity: 1; transform: translateX(0); }
 }
 
 .panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 12px 16px;
     font-weight: 600;
-    font-size: 14px;
-    color: #495057;
-    border-bottom: 1px solid #f1f3f5;
+    font-size: 13px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+}
+
+.panel-header svg {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-light);
+    flex-shrink: 0;
+}
+
+.panel-header span:nth-child(2) {
+    flex: 1;
+}
+
+.user-count-badge {
+    background: var(--accent-active-bg);
+    border: 1px solid var(--accent);
+    color: var(--accent-light);
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    transition: var(--transition);
 }
 
 #users-list {
     overflow-y: auto;
-    padding: 8px;
+    padding: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
 }
 
+#users-list::-webkit-scrollbar {
+    width: 4px;
+}
+#users-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+#users-list::-webkit-scrollbar-thumb {
+    background: var(--border-strong);
+    border-radius: 4px;
+}
+
+/* ============================================================
+   USER ITEMS
+   ============================================================ */
 .user-item {
     display: flex;
     align-items: center;
-    padding: 8px 12px;
-    border-radius: 8px;
-    gap: 12px;
-    transition: background-color 0.2s;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    transition: background 0.15s;
+    animation: userIn 0.3s cubic-bezier(0.34, 1.4, 0.64, 1) both;
+}
+
+@keyframes userIn {
+    from { opacity: 0; transform: scale(0.9) translateX(10px); }
+    to   { opacity: 1; transform: scale(1) translateX(0); }
 }
 
 .user-item:hover {
-    background-color: #f8f9fa;
+    background: var(--bg-surface-hover);
 }
 
-.user-icon {
-    font-size: 18px;
+/* Avatar circle with HSL color per user */
+.user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    background: hsl(var(--avatar-hue, 220), 70%, 30%);
+    border: 1.5px solid hsl(var(--avatar-hue, 220), 70%, 55%);
+    color: hsl(var(--avatar-hue, 220), 80%, 80%);
+    box-shadow: 0 0 8px hsl(var(--avatar-hue, 220), 70%, 30% / 0.5);
 }
 
 .user-id {
     font-size: 13px;
-    color: #495057;
+    color: var(--text-primary);
     font-weight: 500;
     flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-/* Botones de audio flotantes dentro del panel de usuarios */
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+/* ============================================================
+   AUDIO BUTTONS
+   ============================================================ */
 .audio-btn {
-    background: none;
-    border: none;
-    font-size: 16px;
+    background: transparent;
+    border: 1px solid transparent;
     cursor: pointer;
-    position: relative;
     width: 28px;
     height: 28px;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 6px;
-    transition: background-color 0.2s;
+    border-radius: 8px;
+    color: var(--text-muted);
+    transition: var(--transition);
+    padding: 0;
+}
+
+.audio-btn svg {
+    width: 14px;
+    height: 14px;
 }
 
 .audio-btn:hover:not(:disabled) {
-    background-color: #e9ecef;
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
 }
 
-/* Cruz de muteo roja elegante */
+.audio-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Mic active state */
+.audio-btn.mic-btn {
+    color: var(--success);
+}
+
+.audio-btn.mic-btn .mic-off {
+    display: none;
+}
+
+.audio-btn.mic-btn.muted {
+    color: var(--danger);
+}
+
+.audio-btn.mic-btn.muted .mic-on {
+    display: none;
+}
+
+.audio-btn.mic-btn.muted .mic-off {
+    display: flex;
+}
+
+/* Speaker crossed (muted) */
+.audio-btn.crossed {
+    color: var(--danger);
+    position: relative;
+}
+
 .audio-btn.crossed::after {
     content: '';
     position: absolute;
-    width: 100%;
-    height: 2px;
-    background-color: #fa5252;
+    width: 75%;
+    height: 1.5px;
+    background: var(--danger);
     transform: rotate(45deg);
     border-radius: 1px;
 }
 
-/* --- RESPONSIVE DESIGN (Reemplazar al final de styles.css) --- */
-
-/* Para tablets y pantallas medianas (hasta 768px) */
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
 @media (max-width: 768px) {
     .toolbar-floating {
-        /* Mover la barra a la parte inferior */
         top: auto;
         bottom: 20px;
-        width: 90%; /* Permitir que ocupe más ancho */
-        max-width: 450px;
-        flex-wrap: wrap; /* Permite que los botones bajen de línea si no caben */
-        justify-content: center; /* Centrar todo el contenido */
-        transform: translateX(-50%); /* Mantiene el centrado horizontal */
+        max-width: 95vw;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
-    .users-panel-floating {
-        /* Reducir un poco el ancho del panel */
-        width: 200px;
-        right: 10px;
-    }
-}
-
-/* Para teléfonos móviles y pantallas muy estrechas (hasta 480px) */
-@media (max-width: 480px) {
-    .toolbar-floating {
-        bottom: 10px;
-        width: 95%;
-        padding: 6px 10px;
-        gap: 6px; 
+    .tool-label {
+        display: none;
     }
 
     .tool-btn {
-        /* Botones un poco más pequeños en móviles */
-        width: 34px;
-        height: 34px;
-        font-size: 16px;
+        width: 40px;
+        height: 40px;
+    }
+
+    .users-panel-floating {
+        width: 200px;
+        right: 10px;
+    }
+
+    .status-badge {
+        bottom: auto;
+        top: 20px;
+        left: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .toolbar-floating {
+        bottom: 12px;
+        gap: 2px;
+        padding: 6px 8px;
+    }
+
+    .tool-btn {
+        width: 36px;
+        height: 36px;
+    }
+
+    .tool-btn svg {
+        width: 16px;
+        height: 16px;
     }
 
     .color-picker-wrapper {
-        width: 26px;
-        height: 26px;
+        width: 30px;
+        height: 30px;
     }
-    
+
+    #stroke-size {
+        width: 52px;
+    }
+
     .divider {
-        height: 18px;
+        height: 20px;
+        margin: 0 4px;
     }
 
     .users-panel-floating {
         top: 10px;
         right: 10px;
-        width: max-content; /* Que se adapte exactamente al contenido mínimo */
+        width: auto;
+        max-width: 52px;
+        overflow: hidden;
     }
 
-    .panel-header {
-        padding: 8px 12px;
-        font-size: 12px;
+    .users-panel-floating .panel-header span:not(.user-count-badge) {
+        display: none;
     }
-    
+
+    .user-id,
+    .user-actions {
+        display: none;
+    }
+
     .user-item {
-        padding: 6px 8px;
-        gap: 8px;
+        justify-content: center;
     }
+}
 
-    .user-id {
-        /* Ocultar el texto del nombre/ID en móviles para no colisionar con la pizarra */
-        display: none; 
-    }
+/* ============================================================
+   THEME TOGGLE BUTTON
+   ============================================================ */
+
+/* Dark mode (default): show moon, hide sun */
+.theme-toggle-btn .icon-sun  { display: none; }
+.theme-toggle-btn .icon-moon { display: block; }
+
+/* Light mode: show sun, hide moon */
+[data-theme="light"] .theme-toggle-btn .icon-sun  { display: block; }
+[data-theme="light"] .theme-toggle-btn .icon-moon { display: none; }
+
+/* Spin animation when toggled */
+@keyframes iconSpin {
+    from { transform: rotate(-90deg) scale(0.6); opacity: 0; }
+    to   { transform: rotate(0deg)   scale(1);   opacity: 1; }
+}
+
+.theme-toggle-btn svg {
+    animation: iconSpin 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+/* Smooth transition for all surface elements */
+.toolbar-floating,
+.users-panel-floating,
+.status-badge,
+.tool-btn,
+.audio-btn,
+.panel-header,
+.user-item,
+.user-count-badge,
+.divider,
+.color-picker-wrapper {
+    transition: background 0.35s ease, border-color 0.35s ease,
+                color 0.35s ease, box-shadow 0.35s ease;
 }

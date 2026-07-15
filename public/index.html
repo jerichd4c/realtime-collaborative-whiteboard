@@ -4,51 +4,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital whiteboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Caveat:wght@700&display=swap"
+    <meta name="description"
+        content="A real-time collaborative digital whiteboard with drawing tools, shapes, and voice chat.">
+    <title>Collaborative Whiteboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Caveat:wght@700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
     <div class="app-container">
-        <!-- left sidebar: toolbar -->
-        <aside class="toolbar-floating">
-            <button class="tool-btn" id="tool-pencil" title="Lápiz">✏️</button>
-            <button class="tool-btn" id="tool-square">⬜</button>
-            <button class="tool-btn" id="tool-circle">⭕</button>
-            <button class="tool-btn" id="tool-triangle">🔺</button>
-            <button class="tool-btn" id="tool-text">T</button>
-            <button class="tool-btn" id="tool-line">📏</button>
-            <button class="tool-btn" id="tool-image">🖼️</button>
-            <button class="tool-btn" id="tool-eraser">🧽</button>
+        <!-- Top-center floating toolbar -->
+        <header class="toolbar-floating" role="toolbar" aria-label="Drawing tools">
+            <div class="toolbar-group">
+                <button class="tool-btn" id="tool-pan" title="Pan (move canvas)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" />
+                        <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" />
+                        <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" />
+                        <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-2a8 8 0 0 1-8-8 2 2 0 1 1 4 0" />
+                    </svg>
+                    <span class="tool-label">Pan</span>
+                </button>
+                <button class="tool-btn" id="tool-pencil" title="Pencil (freehand draw)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+                    </svg>
+                    <span class="tool-label">Pencil</span>
+                </button>
+            </div>
 
             <span class="divider"></span>
 
-            <div class="color-picker-wrapper" title="Color del trazo">
-                <input type="color" id="color-picker" value="#000000">
+            <div class="toolbar-group">
+                <button class="tool-btn" id="tool-line" title="Line">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                        stroke-linecap="round">
+                        <line x1="5" y1="19" x2="19" y2="5" />
+                    </svg>
+                    <span class="tool-label">Line</span>
+                </button>
+                <button class="tool-btn" id="tool-square" title="Rectangle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                    </svg>
+                    <span class="tool-label">Rect</span>
+                </button>
+                <button class="tool-btn" id="tool-circle" title="Circle / Ellipse">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="12" cy="12" r="9" />
+                    </svg>
+                    <span class="tool-label">Circle</span>
+                </button>
+                <button class="tool-btn" id="tool-triangle" title="Triangle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M13.73 4a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                    </svg>
+                    <span class="tool-label">Triangle</span>
+                </button>
+            </div>
+
+            <span class="divider"></span>
+
+            <div class="toolbar-group">
+                <button class="tool-btn" id="tool-text" title="Text">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M4 7V4h16v3" />
+                        <path d="M9 20h6" />
+                        <path d="M12 4v16" />
+                    </svg>
+                    <span class="tool-label">Text</span>
+                </button>
+                <button class="tool-btn" id="tool-image" title="Insert image">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                        <circle cx="9" cy="9" r="2" />
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                    </svg>
+                    <span class="tool-label">Image</span>
+                </button>
+                <button class="tool-btn" id="tool-eraser" title="Eraser">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21" />
+                        <path d="M22 21H7" />
+                        <path d="m5 11 9 9" />
+                    </svg>
+                    <span class="tool-label">Eraser</span>
+                </button>
+            </div>
+
+            <span class="divider"></span>
+
+            <div class="toolbar-group color-group">
+                <div class="color-picker-wrapper" title="Stroke color">
+                    <input type="color" id="color-picker" value="#000000">
+                    <svg class="color-dropper-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m2 22 1-1h3l9-9" />
+                        <path d="M3 21v-3l9-9" />
+                        <path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8Z" />
+                    </svg>
+                </div>
+                <div class="stroke-size-control" title="Stroke size">
+                    <input type="range" id="stroke-size" min="1" max="20" value="2">
+                </div>
             </div>
 
             <input type="file" id="imageLoader" accept="image/*" style="display: none;">
-        </aside>
+
+            <span class="divider"></span>
+
+            <!-- Theme toggle -->
+            <button class="tool-btn theme-toggle-btn" id="theme-toggle" title="Toggle light / dark mode" aria-label="Toggle theme">
+                <!-- Moon (shown in dark mode) -->
+                <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                </svg>
+                <!-- Sun (shown in light mode) -->
+                <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="4"/>
+                    <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+                </svg>
+                <span class="tool-label">Theme</span>
+            </button>
+        </header>
 
         <!-- canvas -->
-        <main class="canvas-container">
-            <canvas id="whiteboard"></canvas>
+        <main class="canvas-container" id="canvas-container">
+            <canvas id="whiteboard" aria-label="Collaborative whiteboard canvas"></canvas>
         </main>
 
+        <!-- Bottom-left: connection status -->
+        <div class="status-badge" id="status-badge">
+            <span class="status-dot"></span>
+            <span class="status-text">Connecting…</span>
+        </div>
+
         <!-- right sidebar: user controls -->
-        <aside class="users-panel-floating">
-            <div class="panel-header">Users</div>
+        <aside class="users-panel-floating" aria-label="Connected users">
+            <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>Users</span>
+                <span class="user-count-badge" id="user-count">1</span>
+            </div>
             <div id="users-list">
-                <!-- standby template -->
+                <!-- local user template -->
                 <div class="user-item local-user">
-                    <span class="user-icon">👤</span>
-                    <button class="audio-btn speaker-btn" disabled>🔊</button>
-                    <button class="audio-btn mic-btn" id="local-mic-btn">🎙️</button>
+                    <span class="user-avatar" style="--avatar-hue:220">S</span>
                     <span class="user-id">You</span>
+                    <div class="user-actions">
+                        <button class="audio-btn speaker-btn" disabled title="Speaker">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                            </svg>
+                        </button>
+                        <button class="audio-btn mic-btn" id="local-mic-btn" title="Toggle microphone">
+                            <svg class="mic-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                                <line x1="12" x2="12" y1="19" y2="22" />
+                            </svg>
+                            <svg class="mic-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="2" x2="22" y1="2" y2="22" />
+                                <path d="M18.89 13.23A7.12 7.12 0 0 0 19 12v-2" />
+                                <path d="M5 10v2a7 7 0 0 0 12 5" />
+                                <path d="M15 9.34V5a3 3 0 0 0-5.68-1.33" />
+                                <path d="M9 9v3a3 3 0 0 0 5.12 2.12" />
+                                <line x1="12" x2="12" y1="19" y2="22" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <!-- inject new users via JS script -->
+                <!-- inject new users via JS -->
             </div>
         </aside>
     </div>

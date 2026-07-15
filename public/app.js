@@ -11,6 +11,39 @@ const ctx = canvas.getContext('2d');
 let currentStrokeColor = '#000000';
 let currentLineWidth = 2;
 
+// Sync color picker wrapper background so the circle shows the chosen colour
+const colorPickerWrapper = document.querySelector('.color-picker-wrapper');
+function syncColorSwatch(color) {
+    if (colorPickerWrapper) colorPickerWrapper.style.background = color;
+}
+
+/////////////////////
+// THEME TOGGLE   ///
+/////////////////////
+
+(function initTheme() {
+    const saved = localStorage.getItem('wb-theme') || 'light';
+    if (saved === 'light') document.body.setAttribute('data-theme', 'light');
+})();
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+    const isLight = document.body.getAttribute('data-theme') === 'light';
+    const next = isLight ? 'dark' : 'light';
+
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('wb-theme', next);
+
+    // Re-trigger the spin animation on the visible SVG
+    const btn = document.getElementById('theme-toggle');
+    const visibleSvg = btn.querySelector(next === 'light' ? '.icon-sun' : '.icon-moon');
+    if (visibleSvg) {
+        visibleSvg.style.animation = 'none';
+        // Force reflow
+        void visibleSvg.offsetWidth;
+        visibleSvg.style.animation = '';
+    }
+});
+
 // Adjust canvas to container
 function resizeCanvas() {
 
@@ -78,7 +111,20 @@ document.getElementById('tool-pencil').classList.add('active');
 const colorPicker = document.getElementById('color-picker');
 colorPicker.addEventListener('input', (e) => {
     currentStrokeColor = e.target.value;
+    syncColorSwatch(e.target.value);
+    resetCanvasSettings();
 });
+// Init swatch
+syncColorSwatch(currentStrokeColor);
+
+// Stroke size slider
+const strokeSizeSlider = document.getElementById('stroke-size');
+if (strokeSizeSlider) {
+    strokeSizeSlider.addEventListener('input', (e) => {
+        currentLineWidth = parseInt(e.target.value, 10);
+        resetCanvasSettings();
+    });
+}
 
 ////////////////////
 // DRAWING LOGIC ///
@@ -342,9 +388,8 @@ localMicBtn.addEventListener('click', () => {
     if (!localAudioStream) return;
     const track = localAudioStream.getAudioTracks()[0];
     track.enabled = !track.enabled;
-
-    // If muted, add cross element
-    localMicBtn.classList.toggle('crossed');
+    // Toggle the 'muted' class which swaps the SVG icons via CSS
+    localMicBtn.classList.toggle('muted');
 });
 
 // Init WebRTC
@@ -384,10 +429,12 @@ function createUserUI(userId, stream) {
     audioEl.autoplay = true;
     div.appendChild(audioEl);
 
-    // User icon
+    // Avatar with a deterministic hue from userId
+    const hue = (userId.charCodeAt(0) * 47 + userId.charCodeAt(1) * 13) % 360;
     const icon = document.createElement('span');
-    icon.className = 'user-icon';
-    icon.innerText = '👤';
+    icon.className = 'user-avatar';
+    icon.style.setProperty('--avatar-hue', hue);
+    icon.innerText = userId.substring(0, 1).toUpperCase();
 
     // Speaker icon
     const speakerBtn = document.createElement('button');
@@ -412,8 +459,14 @@ function createUserUI(userId, stream) {
     idSpan.className = 'user-id';
     idSpan.innerText = userId.substring(0, 5);
 
-    div.append(icon, speakerBtn, micBtn, idSpan);
+    // Wrap audio buttons
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'user-actions';
+    actionsDiv.append(speakerBtn, micBtn);
+
+    div.append(icon, idSpan, actionsDiv);
     usersList.appendChild(div);
+    updateUserCount();
 }
 
 ///////////////////
@@ -454,28 +507,25 @@ socket.on('user-disconnected', (userId) => {
     if (userUI) userUI.remove();
 });
 
-startAudio(); sersBtn = document.getElementById('toggle-users-btn');
-const closeUsersBtn = document.getElementById('close-users-btn');
-const usersSidebar = document.getElementById('users-sidebar');
+// ---- Status badge ----
+const statusBadge = document.getElementById('status-badge');
+const statusText = statusBadge ? statusBadge.querySelector('.status-text') : null;
 
-if (toggleUsersBtn && usersSidebar) {
-    toggleUsersBtn.addEventListener('click', () => {
-        usersSidebar.classList.toggle('open');
-    });
-}
+socket.on('connect', () => {
+    if (statusBadge) statusBadge.classList.add('connected');
+    if (statusText) statusText.textContent = 'Connected';
+});
 
-if (closeUsersBtn && usersSidebar) {
-    closeUsersBtn.addEventListener('click', () => {
-        usersSidebar.classList.remove('open');
-    });
-}
+socket.on('disconnect', () => {
+    if (statusBadge) statusBadge.classList.remove('connected');
+    if (statusText) statusText.textContent = 'Disconnected';
+});
 
+// ---- User count ----
 function updateUserCount() {
     const userItems = document.querySelectorAll('#users-list .user-item');
     const userCountEl = document.getElementById('user-count');
-    if (userCountEl) {
-        userCountEl.innerText = userItems.length;
-    }
+    if (userCountEl) userCountEl.innerText = userItems.length;
 }
 
 updateUserCount();
